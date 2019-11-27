@@ -15,7 +15,7 @@ namespace ServerWithFile
             this.filesPathsAndTimeCreateOrChangeFiles = filesPathsAndTimeCreateOrChangeFiles;
             this.listener = listener;
         }
-        private StringBuilder data = new StringBuilder();
+        private StringBuilder data;
         private byte[] buffer;
         const int size = 256;
         private Socket listener;
@@ -38,7 +38,7 @@ namespace ServerWithFile
         {
             var nonClientFiles = Split();
             var nonClientFilesNew = new string[nonClientFiles.Length - 1];
-            for (int i = 0; i < nonClientFiles.Length - 1; i++) // why -1?
+            for (int i = 0; i < nonClientFilesNew.Length; i++)
             {
                 nonClientFilesNew[i] = ChangeDirectory(nonClientFiles[i]);
             }
@@ -47,8 +47,7 @@ namespace ServerWithFile
         private string ChangeDirectory(string filePath)
         {
             var filePathNew = new StringBuilder();
-            var nameDirectoryArray = new string[1]; // string[] nameDirectoryArray = {"ClientDirectory"};
-            nameDirectoryArray[0] = "ClientDirectory";
+            string[] nameDirectoryArray = { "ClientDirectory" };
             var withoutNameDirectory = filePath.Split(nameDirectoryArray, StringSplitOptions.None);
             filePathNew.Append(withoutNameDirectory[0]);
             filePathNew.Append("ServerDirectory");
@@ -102,8 +101,20 @@ namespace ServerWithFile
             data = new StringBuilder();
             do
             {
-                var sizeReceivedBuffer = listener.Receive(buffer);
-                data.Append(Encoding.ASCII.GetString(buffer, 0, sizeReceivedBuffer));
+                while (true)
+                {
+                    try
+                    {
+                        var sizeReceivedBuffer = listener.Receive(buffer);
+                        data.Append(Encoding.ASCII.GetString(buffer, 0, sizeReceivedBuffer));
+                        break;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+            
             } while (listener.Available != 0);
         }
         private void SendMessage(string message)

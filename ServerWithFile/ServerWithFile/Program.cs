@@ -11,7 +11,7 @@ namespace ServerWithFile
         static void Main(string[] args)
         {
             CreateSockets createSockets = new CreateSockets();
-            createSockets.Start(5);
+            createSockets.Start(2);
 
         }
     }

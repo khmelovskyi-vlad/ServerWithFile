@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -10,46 +9,22 @@ using System.Threading.Tasks;
 
 namespace ServerWithFile
 {
-    class CreateSockets
+    class Files
     {
-        public CreateSockets()
+        public Files()
         {
-            tcpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            var tcpEndPoint = new IPEndPoint(IPAddress.Any, port);
-            tcpSocket.Bind(tcpEndPoint);
-            tcpSocket.Listen(6);
-            listenerSockets = new List<Socket>();
+
         }
-        private const int port = 2048;
-        private Socket tcpSocket;
+        /*
         private List<Socket> listenerSockets;
         private string pathToFolder = "D:\\temp\\ServerDirectory";
         private byte[] buffer;
         const int size = 256;
         private StringBuilder data;
-        
+
         List<FileStruct> filesPathsAndTimeCreateOrChangeFiles = new List<FileStruct>();
         List<FileStruct> filesPathsAndTimeCreateOrChangeFilesNew;
 
-        public void Start(int n)
-        {
-            AddFilesAndThemTime();
-            for (int i = 0; i < n; i++)
-            {
-                Run();
-            }
-            CheckFiles();
-        }
-        private void Run()
-        {
-            tcpSocket.BeginAccept(ar =>
-            {
-                var listener = tcpSocket.EndAccept(ar);
-                listenerSockets.Add(listener);
-                FirstCheckFiles oHaveFiles = new FirstCheckFiles(filesPathsAndTimeCreateOrChangeFiles, listener);
-                oHaveFiles.CheckFile();
-            }, tcpSocket);
-        }
         AutoResetEvent waitFilesCheck = new AutoResetEvent(true);
         private bool enterClick = false;
         private void CheckFiles()
@@ -81,22 +56,22 @@ namespace ServerWithFile
         }
         private void FindUpdates()
         {
-                var deletePathsFiles = new List<FileStruct>();
-                var newPathsFiles = new List<FileStruct>();
-                var changePathsFiles = new List<FileStruct>();
+            var deletePathsFiles = new List<FileStruct>();
+            var newPathsFiles = new List<FileStruct>();
+            var changePathsFiles = new List<FileStruct>();
 
-                var filesPathsNew = Directory.GetFiles(pathToFolder);
+            var filesPathsNew = Directory.GetFiles(pathToFolder);
 
-                filesPathsAndTimeCreateOrChangeFilesNew = new List<FileStruct>();
-                foreach (var filePathNew in filesPathsNew)
-                {
-                    AddFilesAndThemTimeToList(filePathNew, true, true);
-                }
+            filesPathsAndTimeCreateOrChangeFilesNew = new List<FileStruct>();
+            foreach (var filePathNew in filesPathsNew)
+            {
+                AddFilesAndThemTimeToList(filePathNew, true, true);
+            }
 
-                (deletePathsFiles, newPathsFiles, changePathsFiles) = CreateDeleteAndNewPathsFilesList(filesPathsAndTimeCreateOrChangeFilesNew);
+            (deletePathsFiles, newPathsFiles, changePathsFiles) = CreateDeleteAndNewPathsFilesList(filesPathsAndTimeCreateOrChangeFilesNew);
 
-                SendNewFiles(deletePathsFiles, newPathsFiles, changePathsFiles);
-            
+            SendNewFiles(deletePathsFiles, newPathsFiles, changePathsFiles);
+
         }
         private void SendNewFiles(List<FileStruct> deletePathsFiles, List<FileStruct> newPathsFiles, List<FileStruct> changePathsFiles)
         {
@@ -205,7 +180,7 @@ namespace ServerWithFile
             {
                 var containFileTime = false; // or bool containFileTime, containFilePath = false;
                 var containFilePath = false;
-                                             // Enter it`s OK?
+                // Enter it`s OK?
                 foreach (var filePathAndTimeCreateOrChangeFile in filesPathsAndTimeCreateOrChangeFiles)
                 {
                     if (filePathAndTimeCreateOrChangeFileNew.filePath == filePathAndTimeCreateOrChangeFile.filePath)
@@ -329,6 +304,7 @@ namespace ServerWithFile
         private string[] Split()
         {
             return data.ToString().Split('?');
-        }
+        }*/
+
     }
 }
