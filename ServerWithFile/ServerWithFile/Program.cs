@@ -10,7 +10,7 @@ namespace ServerWithFile
     {
         static void Main(string[] args)
         {
-            CreateSockets createSockets = new CreateSockets();
+            CreateSocketsAndCheckFiles createSockets = new CreateSocketsAndCheckFiles();
             createSockets.Start(2);
 
         }

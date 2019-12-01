@@ -43,9 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Files.cs" />
     <Compile Include="FileStruct.cs" />
-    <Compile Include="CreateSockets.cs" />
+    <Compile Include="CreateSocketsAndCheckFiles.cs" />
     <Compile Include="FirstCheckFiles.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

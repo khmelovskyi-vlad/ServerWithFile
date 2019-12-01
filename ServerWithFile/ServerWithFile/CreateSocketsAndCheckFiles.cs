@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace ServerWithFile
 {
-    class CreateSockets
+    class CreateSocketsAndCheckFiles
     {
-        public CreateSockets()
+        public CreateSocketsAndCheckFiles()
         {
             tcpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             var tcpEndPoint = new IPEndPoint(IPAddress.Any, port);
@@ -140,7 +140,7 @@ namespace ServerWithFile
             var file = File.ReadAllText(newFilePath);
             if (file.Length != 0)
             {
-                SendMessageAllListener(file);
+                SendMessageAllListener($"*{file}");
             }
             else
             {

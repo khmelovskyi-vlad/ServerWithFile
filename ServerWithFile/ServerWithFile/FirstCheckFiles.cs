@@ -54,10 +54,6 @@ namespace ServerWithFile
             filePathNew.Append(withoutNameDirectory[1]);
             return filePathNew.ToString();
         }
-        private void SendFilesPathsAndTimeCreateOrChangeFiles()
-        {
-
-        }
         private void SendFiles(string[] nonClientFiles)
         {
             foreach (var nonClientFile in nonClientFiles)
@@ -65,7 +61,7 @@ namespace ServerWithFile
                 var file = File.ReadAllText(nonClientFile);
                 if (file.Length != 0)
                 {
-                    SendMessage(file);
+                    SendMessage($"*{file}");
                 }
                 else
                 {
