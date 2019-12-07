@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace ServerWithFile
 {
-    class FirstCheckFiles
+    class Synchronizer
     {
-        public FirstCheckFiles(List<FileStruct> filesPathsAndTimeCreateOrChangeFiles, Socket listener)
+        public Synchronizer(List<FileInformation> filesPathsAndTimeCreateOrChangeFiles, Socket listener)
         {
             this.filesPathsAndTimeCreateOrChangeFiles = filesPathsAndTimeCreateOrChangeFiles;
             this.listener = listener;
@@ -20,10 +20,10 @@ namespace ServerWithFile
         const int size = 256;
         private Socket listener;
         
-        List<FileStruct> filesPathsAndTimeCreateOrChangeFiles;
+        List<FileInformation> filesPathsAndTimeCreateOrChangeFiles;
 
 
-        public void CheckFile()
+        public void FileSynchronization()
         {
             var filesInStringBuilder = CreateStringWithFilesPathsAndTime();
             SendMessage(filesInStringBuilder.ToString());

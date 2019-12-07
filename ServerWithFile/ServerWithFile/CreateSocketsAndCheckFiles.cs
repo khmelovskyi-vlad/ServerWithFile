@@ -28,8 +28,8 @@ namespace ServerWithFile
         const int size = 256;
         private StringBuilder data;
         
-        List<FileStruct> filesPathsAndTimeCreateOrChangeFiles = new List<FileStruct>();
-        List<FileStruct> filesPathsAndTimeCreateOrChangeFilesNew;
+        List<FileInformation> filesPathsAndTimeCreateOrChangeFiles = new List<FileInformation>();
+        List<FileInformation> filesPathsAndTimeCreateOrChangeFilesNew;
 
         public void Start(int n)
         {
@@ -46,8 +46,8 @@ namespace ServerWithFile
             {
                 var listener = tcpSocket.EndAccept(ar);
                 listenerSockets.Add(listener);
-                FirstCheckFiles oHaveFiles = new FirstCheckFiles(filesPathsAndTimeCreateOrChangeFiles, listener);
-                oHaveFiles.CheckFile();
+                Synchronizer oHaveFiles = new Synchronizer(filesPathsAndTimeCreateOrChangeFiles, listener);
+                oHaveFiles.FileSynchronization();
             }, tcpSocket);
         }
         AutoResetEvent waitFilesCheck = new AutoResetEvent(true);
@@ -81,13 +81,13 @@ namespace ServerWithFile
         }
         private void FindUpdates()
         {
-                var deletePathsFiles = new List<FileStruct>();
-                var newPathsFiles = new List<FileStruct>();
-                var changePathsFiles = new List<FileStruct>();
+                var deletePathsFiles = new List<FileInformation>();
+                var newPathsFiles = new List<FileInformation>();
+                var changePathsFiles = new List<FileInformation>();
 
                 var filesPathsNew = Directory.GetFiles(pathToFolder);
 
-                filesPathsAndTimeCreateOrChangeFilesNew = new List<FileStruct>();
+                filesPathsAndTimeCreateOrChangeFilesNew = new List<FileInformation>();
                 foreach (var filePathNew in filesPathsNew)
                 {
                     AddFilesAndThemTimeToList(filePathNew, true, true);
@@ -98,7 +98,7 @@ namespace ServerWithFile
                 SendNewFiles(deletePathsFiles, newPathsFiles, changePathsFiles);
             
         }
-        private void SendNewFiles(List<FileStruct> deletePathsFiles, List<FileStruct> newPathsFiles, List<FileStruct> changePathsFiles)
+        private void SendNewFiles(List<FileInformation> deletePathsFiles, List<FileInformation> newPathsFiles, List<FileInformation> changePathsFiles)
         {
             if (deletePathsFiles.Count != 0)
             {
@@ -115,7 +115,7 @@ namespace ServerWithFile
                 SendNewOrChangeFiles("change", changePathsFiles);
             }
         }
-        private void SendNewOrChangeFiles(string sendMessage, List<FileStruct> changePathsFiles)
+        private void SendNewOrChangeFiles(string sendMessage, List<FileInformation> changePathsFiles)
         {
             SendMessageAllListener(sendMessage);
             AnswerAllListener();
@@ -147,7 +147,7 @@ namespace ServerWithFile
                 SendMessageAllListener("?");
             }
         }
-        private string CreateStringFromList(List<FileStruct> somePathsFiles)
+        private string CreateStringFromList(List<FileInformation> somePathsFiles)
         {
             var somePathsFilesStingBuilder = new StringBuilder();
             foreach (var somePathFile in somePathsFiles)
@@ -191,16 +191,16 @@ namespace ServerWithFile
                 }
             }
         }
-        private (List<FileStruct> deletePathsFiles, List<FileStruct> newPathsFiles, List<FileStruct> changePathsFiles) CreateDeleteAndNewPathsFilesList(List<FileStruct> filesPathsAndTimeCreateOrChangeFilesNew)
+        private (List<FileInformation> deletePathsFiles, List<FileInformation> newPathsFiles, List<FileInformation> changePathsFiles) CreateDeleteAndNewPathsFilesList(List<FileInformation> filesPathsAndTimeCreateOrChangeFilesNew)
         {
             var deletePathsFiles = CreateDeletePathsFilesList(filesPathsAndTimeCreateOrChangeFilesNew);
             var (newPathsFiles, changePathsFiles) = CreateNewAndChangePathsFilesList(filesPathsAndTimeCreateOrChangeFilesNew);
             return (deletePathsFiles, newPathsFiles, changePathsFiles);
         }
-        private (List<FileStruct> newPathsFiles, List<FileStruct> changePathsFiles) CreateNewAndChangePathsFilesList(List<FileStruct> filesPathsAndTimeCreateOrChangeFilesNew)
+        private (List<FileInformation> newPathsFiles, List<FileInformation> changePathsFiles) CreateNewAndChangePathsFilesList(List<FileInformation> filesPathsAndTimeCreateOrChangeFilesNew)
         {
-            var newPathsFiles = new List<FileStruct>();
-            var changePathsFiles = new List<FileStruct>();
+            var newPathsFiles = new List<FileInformation>();
+            var changePathsFiles = new List<FileInformation>();
             foreach (var filePathAndTimeCreateOrChangeFileNew in filesPathsAndTimeCreateOrChangeFilesNew)
             {
                 var containFileTime = false; // or bool containFileTime, containFilePath = false;
@@ -233,9 +233,9 @@ namespace ServerWithFile
             }
             return (newPathsFiles, changePathsFiles);
         }
-        private List<FileStruct> CreateDeletePathsFilesList(List<FileStruct> filesPathsAndTimeCreateOrChangeFilesNew)
+        private List<FileInformation> CreateDeletePathsFilesList(List<FileInformation> filesPathsAndTimeCreateOrChangeFilesNew)
         {
-            var deletePathsFiles = new List<FileStruct>();
+            var deletePathsFiles = new List<FileInformation>();
             foreach (var filePathAndTimeCreateOrChangeFile in filesPathsAndTimeCreateOrChangeFiles)
             {
                 var containFile = false;
@@ -269,7 +269,7 @@ namespace ServerWithFile
             {
                 filePath = ChangeDirectoryToNormal(filePath);
             }
-            FileStruct file = new FileStruct();
+            FileInformation file = new FileInformation();
             file.filePath = filePathNew;
             file.timeCreateOrChangeFile = File.GetLastWriteTime(filePath);
             if (forNewFiles)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServerWithFile
 {
-    struct FileStruct
+    struct FileInformation
     {
         public string filePath;
         public DateTime timeCreateOrChangeFile;
