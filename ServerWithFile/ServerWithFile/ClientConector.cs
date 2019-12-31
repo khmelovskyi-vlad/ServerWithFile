@@ -10,17 +10,15 @@ namespace ServerWithFile
 {
     class ClientConector
     {
-        public ClientConector(List<FileInformation> filesPathsAndTimeCreateOrChangeFiles, Action serverRun)
+        public ClientConector(List<FileInformation> filesPathsAndTimeCreateOrChangeFiles)
         {
             this.filesPathsAndTimeCreateOrChangeFiles = filesPathsAndTimeCreateOrChangeFiles;
-            this.serverRun = serverRun;
             listenerSockets = new List<Socket>();
         }
         private StringBuilder data;
         private byte[] buffer;
         const int size = 256;
         private List<Socket> listenerSockets;
-        Action serverRun;
         public List<FileInformation> filesPathsAndTimeCreateOrChangeFiles;
 
         public void NotifyClient(List<FileInformation> deletePathsFiles, List<FileInformation> newPathsFiles, List<FileInformation> changePathsFiles)
@@ -132,7 +130,6 @@ namespace ServerWithFile
             {
                 listenerSockets[i].Close();
                 listenerSockets.Remove(listenerSockets[i]);
-                serverRun.Invoke();
                 return (i, true);
             }
             else
@@ -160,9 +157,20 @@ namespace ServerWithFile
         public void Run(Socket listener)
         {
             listenerSockets.Add(listener);
-            Synchronizer synchronizer = new Synchronizer(filesPathsAndTimeCreateOrChangeFiles, listener);
-            synchronizer.FileSynchronization();
+            Conect(listener);
         }
+        public void Conect(Socket listener)
+        {
+            var filesInStringBuilder = CreateStringWithFilesPathsAndTime();
+            SendMessage(filesInStringBuilder.ToString(), listener);
+            AnswerClient(listener);
+            if (data.ToString() != "?")
+            {
+                var nonClientFiles = CreateNewStringArrayWithChangeDirectory();
+                FirstSendFiles(nonClientFiles, listener);
+            }
+        }
+
         private string[] Split()
         {
             return data.ToString().Split('?');
@@ -188,6 +196,63 @@ namespace ServerWithFile
             filePathNew.Append("ServerDirectory");
             filePathNew.Append(withoutNameDirectory[1]);
             return filePathNew.ToString();
+        }
+        private string[] CreateNewStringArrayWithChangeDirectory()
+        {
+            var nonClientFiles = Split();
+            var nonClientFilesNew = new string[nonClientFiles.Length - 1];
+            for (int i = 0; i < nonClientFilesNew.Length; i++)
+            {
+                nonClientFilesNew[i] = ChangeDirectory(nonClientFiles[i]);
+            }
+            return nonClientFilesNew;
+        }
+        private string ChangeDirectory(string filePath)
+        {
+            var filePathNew = new StringBuilder();
+            string[] nameDirectoryArray = { "ClientDirectory" };
+            var withoutNameDirectory = filePath.Split(nameDirectoryArray, StringSplitOptions.None);
+            filePathNew.Append(withoutNameDirectory[0]);
+            filePathNew.Append("ServerDirectory");
+            filePathNew.Append(withoutNameDirectory[1]);
+            return filePathNew.ToString();
+        }
+        private void FirstSendFiles(string[] nonClientFiles, Socket listener)
+        {
+            foreach (var nonClientFile in nonClientFiles)
+            {
+                var file = File.ReadAllText(nonClientFile);
+                if (file.Length != 0)
+                {
+                    SendMessage($"*{file}", listener);
+                }
+                else
+                {
+                    SendMessage("?", listener);
+                }
+                AnswerClient(listener);
+                if (data.ToString() == "?")
+                {
+                    continue;
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+        }
+        private StringBuilder CreateStringWithFilesPathsAndTime()
+        {
+            StringBuilder filesAndPathsTimeInStringBuilder = new StringBuilder();
+            foreach (var filePathAndTimeCreateOrChangeFile in filesPathsAndTimeCreateOrChangeFiles)
+            {
+                filesAndPathsTimeInStringBuilder.Append($"{filePathAndTimeCreateOrChangeFile.filePath}?");
+            }
+            foreach (var filePathAndTimeCreateOrChangeFile in filesPathsAndTimeCreateOrChangeFiles)
+            {
+                filesAndPathsTimeInStringBuilder.Append($"{filePathAndTimeCreateOrChangeFile.timeCreateOrChangeFile}*");
+            }
+            return filesAndPathsTimeInStringBuilder;
         }
         private void AnswerClient(Socket listener)
         {

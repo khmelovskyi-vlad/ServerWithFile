@@ -15,13 +15,15 @@ namespace ServerWithFile
         private string pathToFolder = "D:\\temp\\ServerDirectory";
         public Server()
         {
+        }
+        public void InitializationAndRun()
+        {
             tcpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             var tcpEndPoint = new IPEndPoint(IPAddress.Any, port);
             tcpSocket.Bind(tcpEndPoint);
             tcpSocket.Listen(6);
             AddFilesAndThemTime();
-            Action run = Run;
-            clientConect = new ClientConector(filesPathsAndTimeCreateOrChangeFiles, run);
+            clientConect = new ClientConector(filesPathsAndTimeCreateOrChangeFiles);
             fileDet = new FilesDetector(filesPathsAndTimeCreateOrChangeFiles, clientConect);
             Run();
             Detect();
@@ -31,26 +33,19 @@ namespace ServerWithFile
         List<FileInformation> filesPathsAndTimeCreateOrChangeFiles = new List<FileInformation>();
         ClientConector clientConect;
         FilesDetector fileDet;
-        public void Run()
+        private void Run()
         {
             tcpSocket.BeginAccept(ar =>
             {
                 try
                 {
                     var listener = tcpSocket.EndAccept(ar);
-                    clientConect.Run(listener);
+                    Task.Run(() => clientConect.Run(listener));
+                    Run();
                 }
-                catch (SocketException socketException)
+                catch (Exception socketException)
                 {
-                    var errorCode = socketException.ErrorCode;
-                    if (errorCode == 10054 || errorCode == 10053)
-                    {
-                        Run();
-                    }
-                    else
-                    {
-                        Console.WriteLine(socketException.Message);
-                    }
+                    throw socketException;
                 }
             }, tcpSocket);
         }
@@ -75,6 +70,7 @@ namespace ServerWithFile
             while (true)
             {
                 waitFilesCheck.WaitOne(10000);
+
                 if (enterClick)
                 {
                     enterClick = false;
